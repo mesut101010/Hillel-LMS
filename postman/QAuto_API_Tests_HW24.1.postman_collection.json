@@ -1,0 +1,415 @@
+{
+  "info": {
+    "name": "QAuto API Tests - HW 24.1",
+    "description": "API тести для додатку qauto.forstudy.space",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "basic",
+    "basic": [
+      { "key": "username", "value": "guest", "type": "string" },
+      { "key": "password", "value": "welcome2qauto", "type": "string" }
+    ]
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "https://qauto.forstudy.space" },
+    { "key": "userEmail", "value": "" },
+    { "key": "carId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "1. Створити користувача (POST /auth/signup)",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const timestamp = Date.now();",
+              "const randomSuffix = Math.random().toString(36).substring(2, 7);",
+              "const email = `testuser_${timestamp}_${randomSuffix}@qauto.test`;",
+              "pm.collectionVariables.set('userEmail', email);",
+              "console.log('New unique user email:', email);"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response status is ok', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.status).to.eql('ok');",
+              "});",
+              "",
+              "pm.test('Response contains userId as number', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.data.userId).to.be.a('number');",
+              "});",
+              "",
+              "pm.test('Response contains distanceUnits field', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.data.distanceUnits).to.be.a('string');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"name\": \"TestName\",\n    \"lastName\": \"TestLast\",\n    \"email\": \"{{userEmail}}\",\n    \"password\": \"Test1234!\",\n    \"repeatPassword\": \"Test1234!\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/signup",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "auth", "signup"]
+        }
+      }
+    },
+    {
+      "name": "2. Змінити Ім'я та Прізвище (PUT /users/profile)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response status is ok', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.status).to.eql('ok');",
+              "});",
+              "",
+              "pm.test('Name updated to UpdatedName', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.data.name).to.eql('UpdatedName');",
+              "});",
+              "",
+              "pm.test('LastName updated to UpdatedLast', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.data.lastName).to.eql('UpdatedLast');",
+              "});",
+              "",
+              "pm.test('Response contains userId', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.data.userId).to.be.a('number');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"name\": \"UpdatedName\",\n    \"lastName\": \"UpdatedLast\",\n    \"dateBirth\": \"1990-01-01\",\n    \"country\": \"Ukraine\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/users/profile",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "users", "profile"]
+        }
+      }
+    },
+    {
+      "name": "3. Змінити distance на ml (PUT /users/settings)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response status is ok', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.status).to.eql('ok');",
+              "});",
+              "",
+              "pm.test('distanceUnits changed to ml', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.data.distanceUnits).to.eql('ml');",
+              "});",
+              "",
+              "pm.test('Currency field is usd', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.data.currency).to.eql('usd');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"distanceUnits\": \"ml\",\n    \"currency\": \"usd\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/users/settings",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "users", "settings"]
+        }
+      }
+    },
+    {
+      "name": "4. Додати автомобіль Audi TT (POST /cars)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response status is ok', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.status).to.eql('ok');",
+              "});",
+              "",
+              "pm.test('Car ID is a number - save to variable', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.data.id).to.be.a('number');",
+              "    pm.collectionVariables.set('carId', json.data.id);",
+              "});",
+              "",
+              "pm.test('Brand is Audi', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.data.brand).to.eql('Audi');",
+              "});",
+              "",
+              "pm.test('Model is TT', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.data.model).to.eql('TT');",
+              "});",
+              "",
+              "pm.test('Initial mileage is 100', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.data.initialMileage).to.eql(100);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"carBrandId\": 1,\n    \"carModelId\": 1,\n    \"mileage\": 100\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/cars",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "cars"]
+        }
+      }
+    },
+    {
+      "name": "5. Змінити пробіг (PUT /cars/:id)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response status is ok', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.status).to.eql('ok');",
+              "});",
+              "",
+              "pm.test('Mileage updated to 5000', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.data.mileage).to.eql(5000);",
+              "});",
+              "",
+              "pm.test('Car ID matches saved variable', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.data.id).to.eql(Number(pm.collectionVariables.get('carId')));",
+              "});",
+              "",
+              "pm.test('Brand and model unchanged', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.data.brand).to.eql('Audi');",
+              "    pm.expect(json.data.model).to.eql('TT');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"carBrandId\": 1,\n    \"carModelId\": 1,\n    \"mileage\": 5000\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/cars/{{carId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "cars", "{{carId}}"]
+        }
+      }
+    },
+    {
+      "name": "6. Додати витрати (POST /expenses)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response status is ok', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.status).to.eql('ok');",
+              "});",
+              "",
+              "pm.test('Expense linked to correct car', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.data.carId).to.eql(Number(pm.collectionVariables.get('carId')));",
+              "});",
+              "",
+              "pm.test('Liters value is 40.5', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.data.liters).to.eql(40.5);",
+              "});",
+              "",
+              "pm.test('Total cost is 1800', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.data.totalCost).to.eql(1800);",
+              "});",
+              "",
+              "pm.test('Mileage in expense is 5100', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.data.mileage).to.eql(5100);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"carId\": {{carId}},\n    \"reportedAt\": \"2026-06-03\",\n    \"mileage\": 5100,\n    \"liters\": 40.5,\n    \"totalCost\": 1800\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/expenses",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "expenses"]
+        }
+      }
+    },
+    {
+      "name": "7. Видалити авто (DELETE /cars/:id)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response status is ok', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.status).to.eql('ok');",
+              "});",
+              "",
+              "pm.test('Response contains deleted carId', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.data.carId).to.eql(Number(pm.collectionVariables.get('carId')));",
+              "});",
+              "",
+              "pm.collectionVariables.set('carId', '');"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/cars/{{carId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "cars", "{{carId}}"]
+        }
+      }
+    },
+    {
+      "name": "8. Видалити користувача (DELETE /users)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response status is ok', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.status).to.eql('ok');",
+              "});",
+              "",
+              "pm.test('Response body is valid JSON', function () {",
+              "    pm.response.to.be.json;",
+              "});",
+              "",
+              "pm.collectionVariables.set('userEmail', '');"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/users",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "users"]
+        }
+      }
+    }
+  ]
+}
